@@ -35,3 +35,4 @@ Convention de nommage : `raw/{ville}/{YYYY-MM-DDTHHh}.json`
 - Python 3.12
 - Dépendances figées via `pip freeze > requirements.txt` (nécessaire pour garantir la reproductibilité entre l'environnement local et l'environnement d'exécution GitHub Actions)
  
+
