@@ -3,8 +3,7 @@
 ## Équipe
  
 - **STD24003**
-- **STD24166** 
-
+- **STD24166**
 ## Méthode de travail
  
 ### Git / GitHub
@@ -13,9 +12,11 @@
 - Une branche `feature/nom-de-la-tache` par fonctionnalité
 
 ### Répartition des tâches
-
-
-
+ 
+Le script d'extraction (`extract_air_quality.py`) a été développé en deux temps sur la même branche : une première personne a écrit la logique d'appel à l'API et de structuration des données (Extract + Parse), la seconde a complété avec la logique de sauvegarde (Load : CSV local et upload vers Supabase Storage).
+ 
+Le script de backfill historique (`backfill.py`) a été développé selon le même principe de collaboration sur une branche dédiée, avec revue de code croisée avant fusion dans `main`.
+ 
 ## Défis rencontrés
  
 ### 1. Blocage carte bancaire (AWS/GCP)
