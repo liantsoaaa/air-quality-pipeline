@@ -54,6 +54,41 @@ def list_all_files(client, folder: str, max_retries: int = 3) -> list[str]:
             break
         offset += limit
     return files
+    
+def parse_hourly_file(city: str, content: dict) -> list[dict]:
+    return [{
+        "city": content.get("city", city),
+        "measurement_date": content.get("measurement_date"),
+        "aqi": content.get("aqi"),
+        "co": content.get("co"),
+        "no": content.get("no"),
+        "no2": content.get("no2"),
+        "o3": content.get("o3"),
+        "so2": content.get("so2"),
+        "pm2_5": content.get("pm2_5"),
+        "pm10": content.get("pm10"),
+        "nh3": content.get("nh3"),
+    }]
+
+
+def parse_backfill_file(city: str, content: dict) -> list[dict]:
+    rows = []
+    for entry in content.get("list", []):
+        components = entry.get("components", {})
+        rows.append({
+            "city": city,
+            "measurement_date": datetime.fromtimestamp(entry["dt"]).isoformat(),
+            "aqi": entry.get("main", {}).get("aqi"),
+            "co": components.get("co"),
+            "no": components.get("no"),
+            "no2": components.get("no2"),
+            "o3": components.get("o3"),
+            "so2": components.get("so2"),
+            "pm2_5": components.get("pm2_5"),
+            "pm10": components.get("pm10"),
+            "nh3": components.get("nh3"),
+        })
+    return rows
 
 
 if __name__ == "__main__":
