@@ -6,6 +6,8 @@ import pandas as pd
 from dotenv import load_dotenv
 from supabase import create_client
 
+import time 
+
 load_dotenv()
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
@@ -27,14 +29,24 @@ def get_client():
     return create_client(SUPABASE_URL, SUPABASE_KEY)
 
 
-def list_all_files(client, folder: str) -> list[str]:
+def list_all_files(client, folder: str, max_retries: int = 3) -> list[str]:
     files = []
     offset = 0
     limit = 100
     while True:
-        batch = client.storage.from_(BUCKET_NAME).list(
-            folder, {"limit": limit, "offset": offset}
-        )
+        batch = None
+        for attempt in range(max_retries):
+            try:
+                batch = client.storage.from_(BUCKET_NAME).list(
+                    folder, {"limit": limit, "offset": offset}
+                )
+                break
+            except Exception as e:
+                print(f"  retry {attempt + 1}/{max_retries} for {folder}: {e}")
+                time.sleep(2)
+        if batch is None:
+            raise RuntimeError(f"Failed to list {folder} after {max_retries} attempts")
+
         if not batch:
             break
         files.extend(f["name"] for f in batch)
