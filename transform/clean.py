@@ -114,6 +114,43 @@ def read_raw_data() -> pd.DataFrame:
 
     return pd.DataFrame(all_rows)
 
+def clean_dataframe(df):
+    df.columns = df.columns.str.strip().str.lower().str.replace(" ", "_")
+
+    df = df.dropna()
+
+    df = df.drop_duplicates(subset=["city", "measurement_date"])
+
+    df = df[df["aqi"] >= 1]
+    df = df[df["aqi"] <= 5]
+    df = df[df["co"] >= 0]
+    df = df[df["no"] >= 0]
+    df = df[df["no2"] >= 0]
+    df = df[df["o3"] >= 0]
+    df = df[df["so2"] >= 0]
+    df = df[df["pm2_5"] >= 0]
+    df = df[df["pm10"] >= 0]
+    df = df[df["nh3"] >= 0]
+
+    df["measurement_date"] = pd.to_datetime(df["measurement_date"], errors="coerce")
+    df = df.dropna()
+
+    pays_list = []
+    lat_list = []
+    lon_list = []
+    for city in df["city"]:
+        pays_list.append(CITY_INFO[city]["pays"])
+        lat_list.append(CITY_INFO[city]["latitude"])
+        lon_list.append(CITY_INFO[city]["longitude"])
+
+    df["pays"] = pays_list
+    df["latitude"] = lat_list
+    df["longitude"] = lon_list
+
+    df = df.sort_values(["city", "measurement_date"])
+    df = df.reset_index(drop=True)
+
+    return df
 
 if __name__ == "__main__":
     df = read_raw_data()
