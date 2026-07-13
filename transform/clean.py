@@ -152,7 +152,38 @@ def clean_dataframe(df):
 
     return df
 
-if __name__ == "__main__":
+def save_clean_local(df_clean):
+    if not os.path.exists("data"):
+        os.makedirs("data")
+    df_clean.to_csv("data/air_quality_clean.csv", index=False)
+    return "data/air_quality_clean.csv"
+
+
+def save_clean_supabase(df_clean):
+    client = get_client()
+    csv_data = df_clean.to_csv(index=False)
+    csv_bytes = csv_data.encode("utf-8")
+    client.storage.from_(BUCKET_NAME).upload(
+        path="clean/air_quality_clean.csv",
+        file=csv_bytes,
+        file_options={"content-type": "text/csv", "upsert": "true"},
+    )
+    return "clean/air_quality_clean.csv"
+
+
+def main():
     df = read_raw_data()
-    print(df.shape)
-    print(df.head())
+    print("raw rows", len(df))
+
+    df_clean = clean_dataframe(df)
+    print("clean rows", len(df_clean))
+
+    path1 = save_clean_local(df_clean)
+    print("saved", path1)
+
+    path2 = save_clean_supabase(df_clean)
+    print("uploaded", path2)
+
+
+if __name__ == "__main__":
+    main()
