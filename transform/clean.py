@@ -91,8 +91,31 @@ def parse_backfill_file(city: str, content: dict) -> list[dict]:
     return rows
 
 
-if __name__ == "__main__":
+def read_raw_data() -> pd.DataFrame:
     client = get_client()
+    all_rows = []
+
     for city in CITY_INFO:
-        files = list_all_files(client, f"raw/{city}")
-        print(f"{city}: {len(files)} files found")
+        folder = f"raw/{city}"
+        filenames = list_all_files(client, folder)
+        print(f"{city}: {len(filenames)} files found")
+
+        for filename in filenames:
+            path = f"{folder}/{filename}"
+            raw_bytes = client.storage.from_(BUCKET_NAME).download(path)
+            content = json.loads(raw_bytes)
+
+            if filename.startswith("backfill_"):
+                rows = parse_backfill_file(city, content)
+            else:
+                rows = parse_hourly_file(city, content)
+
+            all_rows.extend(rows)
+
+    return pd.DataFrame(all_rows)
+
+
+if __name__ == "__main__":
+    df = read_raw_data()
+    print(df.shape)
+    print(df.head())
