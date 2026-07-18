@@ -81,10 +81,51 @@ def validate(df):
     result3 = check("No duplicate city+hour combinations", duplicates == 0, str(duplicates) + " duplicates found")
     results.append(result3)
 
-    return results
+    cities_found = df["city"].unique().tolist()
+    all_cities_ok = True
+    for city in EXPECTED_CITIES:
+        if city not in cities_found:
+            all_cities_ok = False
 
+    result4 = check("All 5 expected cities present", all_cities_ok, "found: " + str(cities_found))
+    results.append(result4)
 
-if __name__ == "__main__":
-    df = load_clean_csv(None)
-    print(df.shape)
-    validate(df)
+    df_sorted_check = df.sort_values(["city", "measurement_date"])
+    df_sorted_check = df_sorted_check.reset_index(drop=True)
+    df_reset = df.reset_index(drop=True)
+    is_sorted = df_reset.equals(df_sorted_check)
+    result5 = check("Sorted chronologically by city", is_sorted)
+    results.append(result5)
+
+    aqi_bad = df[(df["aqi"] < 1) | (df["aqi"] > 5)]
+    aqi_valid = len(aqi_bad) == 0
+    result6 = check("AQI values within valid range (1-5)", aqi_valid, str(len(aqi_bad)) + " invalid values")
+    results.append(result6)
+
+    pollutant_cols = ["co", "no", "no2", "o3", "so2", "pm2_5", "pm10", "nh3"]
+    negative_found = False
+    for col in pollutant_cols:
+        bad_rows = df[df[col] < 0]
+        if len(bad_rows) > 0:
+            negative_found = True
+
+    result7 = check("No negative pollutant concentrations", not negative_found)
+    results.append(result7)
+
+    lat_ok = df["latitude"].between(-90, 90).all()
+    lon_ok = df["longitude"].between(-180, 180).all()
+    coords_valid = lat_ok and lon_ok
+    result8 = check("Coordinates within valid geographic range", coords_valid)
+    results.append(result8)
+
+    print("")
+    print("Total rows:", len(df))
+    print("Rows per city:")
+    print(df["city"].value_counts())
+
+    all_passed = True
+    for r in results:
+        if r == False:
+            all_passed = False
+
+    return all_passed
