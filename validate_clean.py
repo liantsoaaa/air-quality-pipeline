@@ -21,3 +21,29 @@ def get_client():
         print("SUPABASE_URL or SUPABASE_KEY missing")
         raise SystemExit(1)
     return create_client(SUPABASE_URL, SUPABASE_KEY)
+
+def load_clean_csv(local_path):
+    if local_path != None:
+        print("Loading local file:", local_path)
+        df = pd.read_csv(local_path)
+        return df
+
+    client = get_client()
+    print("Downloading clean/air_quality_clean.csv from Supabase Storage")
+    raw_bytes = client.storage.from_(BUCKET_NAME).download("clean/air_quality_clean.csv")
+
+    if not os.path.exists("data"):
+        os.makedirs("data")
+
+    tmp_path = "data/_validation_tmp.csv"
+    f = open(tmp_path, "wb")
+    f.write(raw_bytes)
+    f.close()
+
+    df = pd.read_csv(tmp_path)
+    return df
+
+
+if __name__ == "__main__":
+    df = load_clean_csv(None)
+    print(df.shape)
