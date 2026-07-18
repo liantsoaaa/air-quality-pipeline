@@ -44,9 +44,30 @@ def load_clean_csv(local_path):
     return df
 
 
-if __name__ == "__main__":
-    df = load_clean_csv(None)
-    print(df.shape)
+def main():
+    if len(sys.argv) > 1:
+        local_path = sys.argv[1]
+    else:
+        local_path = None
+
+    df = load_clean_csv(local_path)
+    print("")
+    print("Loaded", len(df), "rows,", len(df.columns), "columns")
+    print("")
+
+    print("Running validation checks:")
+    print("")
+    is_valid = validate(df)
+
+    print("")
+    print("")
+    if is_valid:
+        print("VALIDATION PASSED")
+        sys.exit(0)
+    else:
+        print("VALIDATION FAILED")
+        sys.exit(1)
+
 
 def check(label, condition, details=""):
     if condition:
@@ -129,3 +150,7 @@ def validate(df):
             all_passed = False
 
     return all_passed
+
+
+if __name__ == "__main__":
+    main()
