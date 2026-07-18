@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  extract:
+  pipeline:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout du code
@@ -20,9 +20,15 @@ jobs:
       - name: Installer les dependances
         run: pip install -r requirements.txt
 
-      - name: Lancer l'extraction
+      - name: Extraction
         run: python extraction/extract_air_quality.py
         env:
           OPENWEATHER_API_KEY: ${{ secrets.OPENWEATHER_API_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+
+      - name: Transformation
+        run: python transform/clean.py
+        env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
