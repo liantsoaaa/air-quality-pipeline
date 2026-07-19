@@ -48,7 +48,33 @@ def get_connection():
     conn = psycopg2.connect(DATABASE_URL)
     return conn
 
+def load_dim_ville(conn):
+    rows = []
+    for city in CITY_INFO:
+        info = CITY_INFO[city]
+        rows.append((city, info["pays"], info["lat"], info["lon"]))
+
+    cur = conn.cursor()
+    execute_values(cur, "INSERT INTO dim_ville (nom_ville, pays, latitude, longitude) VALUES %s ON CONFLICT (nom_ville) DO NOTHING", rows)
+    conn.commit()
+    cur.close()
+
+    cur = conn.cursor()
+    cur.execute("SELECT id_ville, nom_ville FROM dim_ville")
+    result = cur.fetchall()
+    cur.close()
+
+    ville_ids = {}
+    for id_ville, nom in result:
+        ville_ids[nom] = id_ville
+
+    return ville_ids
 
 if __name__ == "__main__":
     df = download_clean_csv()
     print(df.shape)
+
+    conn = get_connection()
+    ville_ids = load_dim_ville(conn)
+    print("dim_ville:", ville_ids)
+    conn.close()
