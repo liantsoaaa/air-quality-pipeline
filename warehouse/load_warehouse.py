@@ -70,11 +70,39 @@ def load_dim_ville(conn):
 
     return ville_ids
 
+def load_dim_temps(conn, timestamps):
+    rows = []
+    for ts in timestamps:
+        dt = pd.to_datetime(ts)
+        jour_semaine = dt.day_name()
+        est_weekend = dt.weekday() >= 5
+        rows.append((dt.to_pydatetime(), dt.date(), dt.hour, dt.day, dt.month, dt.year, jour_semaine, est_weekend))
+
+    cur = conn.cursor()
+    execute_values(cur, "INSERT INTO dim_temps (date_complete, date, heure, jour, mois, annee, jour_semaine, est_weekend) VALUES %s ON CONFLICT (date_complete) DO NOTHING", rows)
+    conn.commit()
+    cur.close()
+
+    cur = conn.cursor()
+    cur.execute("SELECT id_temps, date_complete FROM dim_temps")
+    result = cur.fetchall()
+    cur.close()
+
+    temps_ids = {}
+    for id_temps, date_complete in result:
+        temps_ids[pd.Timestamp(date_complete).isoformat()] = id_temps
+
+    return temps_ids
+
 if __name__ == "__main__":
     df = download_clean_csv()
     print(df.shape)
 
     conn = get_connection()
     ville_ids = load_dim_ville(conn)
-    print("dim_ville:", ville_ids)
+    print("dim_ville:", len(ville_ids), "cities")
+
+    timestamps = df["measurement_date"].unique().tolist()
+    temps_ids = load_dim_temps(conn, timestamps)
+    print("dim_temps:", len(temps_ids), "timestamps")
     conn.close()
