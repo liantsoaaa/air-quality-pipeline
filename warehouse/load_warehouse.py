@@ -94,15 +94,49 @@ def load_dim_temps(conn, timestamps):
 
     return temps_ids
 
-if __name__ == "__main__":
+def load_fact_table(conn, df, ville_ids, temps_ids):
+    rows = []
+    for index, row in df.iterrows():
+        id_ville = ville_ids.get(row["city"])
+        dt = pd.to_datetime(row["measurement_date"])
+        id_temps = temps_ids.get(dt.isoformat())
+
+        if id_ville == None or id_temps == None:
+            continue
+
+        rows.append((id_ville, id_temps, row["aqi"], row["co"], row["no"], row["no2"], row["o3"], row["so2"], row["pm2_5"], row["pm10"], row["nh3"]))
+
+    cur = conn.cursor()
+    execute_values(cur, """INSERT INTO fait_mesures_qualite_air
+        (id_ville, id_temps, aqi, co, no, no2, o3, so2, pm2_5, pm10, nh3)
+        VALUES %s
+        ON CONFLICT (id_ville, id_temps) DO UPDATE SET
+        aqi=EXCLUDED.aqi, co=EXCLUDED.co, no=EXCLUDED.no, no2=EXCLUDED.no2,
+        o3=EXCLUDED.o3, so2=EXCLUDED.so2, pm2_5=EXCLUDED.pm2_5,
+        pm10=EXCLUDED.pm10, nh3=EXCLUDED.nh3""", rows)
+    conn.commit()
+    cur.close()
+
+    return len(rows)
+
+def main():
     df = download_clean_csv()
-    print(df.shape)
+    print("Loaded", len(df), "rows from clean/air_quality_clean.csv")
 
     conn = get_connection()
+
     ville_ids = load_dim_ville(conn)
     print("dim_ville:", len(ville_ids), "cities")
 
     timestamps = df["measurement_date"].unique().tolist()
     temps_ids = load_dim_temps(conn, timestamps)
     print("dim_temps:", len(temps_ids), "timestamps")
+
+    n = load_fact_table(conn, df, ville_ids, temps_ids)
+    print("fait_mesures_qualite_air:", n, "rows upserted")
+
     conn.close()
+
+
+if __name__ == "__main__":
+    main()
