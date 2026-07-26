@@ -91,18 +91,33 @@ def parse_backfill_file(city: str, content: dict) -> list[dict]:
     return rows
 
 
-def read_raw_data() -> pd.DataFrame:
+def read_raw_data():
     client = get_client()
     all_rows = []
 
     for city in CITY_INFO:
-        folder = f"raw/{city}"
+        folder = "raw/" + city
         filenames = list_all_files(client, folder)
-        print(f"{city}: {len(filenames)} files found")
+        print(city, ":", len(filenames), "files found")
 
         for filename in filenames:
-            path = f"{folder}/{filename}"
-            raw_bytes = client.storage.from_(BUCKET_NAME).download(path)
+            path = folder + "/" + filename
+
+            raw_bytes = None
+            tries = 0
+            while tries < 3:
+                try:
+                    raw_bytes = client.storage.from_(BUCKET_NAME).download(path)
+                    break
+                except Exception as e:
+                    tries += 1
+                    print("retry", tries, "/3 for", path, ":", e)
+                    time.sleep(2)
+
+            if raw_bytes == None:
+                print("skipped after 3 tries:", path)
+                continue
+
             content = json.loads(raw_bytes)
 
             if filename.startswith("backfill_"):
