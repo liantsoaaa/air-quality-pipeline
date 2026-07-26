@@ -72,7 +72,7 @@ Repo GitHub → **Settings** → **Secrets and variables** → **Actions**, ajou
 1. Créer un Personal Access Token GitHub (scope `workflow`)
 2. Créer un compte sur [cron-job.org](https://cron-job.org)
 3. Créer un cronjob avec :
-   - URL : `https://github.com/liantsoaaa/air-quality-pipeline/actions/workflows/extraction_horaire.yml`
+   - URL : `https://api.github.com/repos/liantsoaaa/air-quality-pipeline/actions/workflows/extraction_horaire.yml/dispatches`
    - Méthode : POST
    - Headers : `Authorization: Bearer VOTRE_TOKEN` et `Accept: application/vnd.github+json`
    - Body : `{"ref": "main"}`
