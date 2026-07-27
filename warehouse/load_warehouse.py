@@ -1,4 +1,5 @@
 import os
+import time
 
 import pandas as pd
 from dotenv import load_dotenv
@@ -28,7 +29,20 @@ def download_clean_csv():
         raise SystemExit(1)
 
     client = create_client(SUPABASE_URL, SUPABASE_KEY)
-    raw_bytes = client.storage.from_(BUCKET_NAME).download("clean/air_quality_clean.csv")
+
+    raw_bytes = None
+    tries = 0
+    while tries < 3:
+        try:
+            raw_bytes = client.storage.from_(BUCKET_NAME).download("clean/air_quality_clean.csv")
+            break
+        except Exception as e:
+            tries += 1
+            print("retry", tries, "/3 downloading clean csv :", e)
+            time.sleep(2)
+
+    if raw_bytes == None:
+        raise RuntimeError("failed to download clean csv after 3 tries")
 
     if not os.path.exists("data"):
         os.makedirs("data")
