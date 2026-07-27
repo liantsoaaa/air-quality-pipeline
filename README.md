@@ -155,7 +155,7 @@ Juillet 2025 à aujourd'hui, avec collecte automatique continue toutes les heure
 
 ## Cohérence des données
 
-La table de faits contient 44 285 lignes, réparties de façon égale entre les 5 villes (8 857 lignes chacune), correspondant à environ 12 mois de collecte horaire par ville (backfill + collecte automatique continue).
+À la date du 27 juillet 2026, la table de faits contenait 44 890 lignes, réparties de façon égale entre les 5 villes (8 978 lignes chacune), correspondant à environ 12 mois de collecte horaire par ville (backfill + collecte automatique continue). Ce nombre continue d'augmenter automatiquement chaque heure, le pipeline restant actif.
 
 ## Trous connus
 
