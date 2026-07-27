@@ -69,3 +69,9 @@ Ce changement a nécessité de revoir l'ensemble du planning et de réapprendre 
 **Problème** : la chaîne de connexion PostgreSQL fournie par Supabase pour le pooler de transactions inclut un paramètre additionnel (`pgbouncer=true`) destiné à certains ORM, mais que la librairie `psycopg2` ne reconnaît pas, provoquant une erreur de connexion.
 
 **Solution** : suppression de ce paramètre dans la chaîne de connexion utilisée par le script Python, sans impact sur le fonctionnement du pooler côté Supabase.
+
+### 7. Quota GitHub Actions dépassé
+ 
+**Problème** : après plusieurs jours d'exécution horaire automatique et de nombreux tests manuels, GitHub Actions a bloqué les nouveaux runs avec le message "recent account payments have failed or your spending limit needs to be increased". Vu que le dépôt était privé, il était soumis à une limite de 2000 minutes gratuites par mois, largement dépassée par le volume de runs accumulés.
+ 
+**Solution** : passage du dépôt en public, ce qui donne un accès illimité et gratuit aux minutes GitHub Actions sur les dépôts publics.
