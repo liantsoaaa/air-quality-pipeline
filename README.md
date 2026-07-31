@@ -39,8 +39,6 @@ SUPABASE_KEY=votre_secret_key_supabase
 DATABASE_URL=votre_chaine_de_connexion_postgres
 ```
 
-**Ne jamais committer ce fichier** - il est exclu via `.gitignore`.
-
 ## Lancer le pipeline manuellement
 
 ```bash
@@ -82,6 +80,7 @@ Repo GitHub → **Settings** → **Secrets and variables** → **Actions**, ajou
 
 ```
 extraction/          scripts d'extraction et de backfill des données brutes
+screenshoots/         screenshoots des captures de l'historique d'exécutions de l'orchestration
 transform/            script de nettoyage des données
 warehouse/            schéma SQL et script de chargement du data warehouse
 validate_clean.py     script de validation du contrat de données
