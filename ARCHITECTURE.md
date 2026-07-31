@@ -8,12 +8,8 @@ Pipeline de données automatisé collectant les données de qualité de l'air po
 
 **OpenWeather Air Pollution API**
 
-Choisie parmi les API de qualité de l'air disponibles pour plusieurs raisons :
+Choisie parmi les API de qualité de l'air disponibles car :
 - Historique disponible depuis novembre 2020, couvrant largement la période demandée (juillet 2025 - juillet 2026)
-- Free tier généreux (1 000 000 d'appels/mois), largement suffisant pour 5 villes x 24 appels/jour
-- Un seul endpoint simple par ville, données structurées (AQI + composants : CO, NO, NO2, O3, SO2, PM2.5, PM10, NH3)
-
-**Contrainte technique** : l'API nécessite des coordonnées latitude/longitude (pas de nom de ville en paramètre), contrairement à l'API météo classique. D'où le choix de 5 villes avec coordonnées fixes plutôt qu'une recherche dynamique par nom.
 
 ## Extraction
 
